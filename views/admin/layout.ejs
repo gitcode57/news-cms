@@ -28,7 +28,7 @@
             <!-- /LOGO -->
             <!-- LOG-Out -->
             <div class="col-md-2">
-                <a href="logout.html" class="admin-logout">
+                <a href="/admin/logout" class="admin-logout">
                   <i class="fa fa-sign-out"></i> logout
                 </a>
             </div>
@@ -49,18 +49,23 @@
               <li>
                 <a href="/admin/articles">Article</a>
               </li>
-              <li>
-                <a href="/admin/category">Category</a>
-              </li>
+              <% if(role === 'admin') { %>
+                <li>
+                  <a href="/admin/category">Category</a>
+                </li>
+              
               <li>
                 <a href="/admin/users">Users</a>
               </li>
+              <% } %>
               <li>
                 <a href="/admin/comment">Comments</a>
               </li>
+              <% if(role === 'admin') { %>
               <li>
                 <a href="/admin/settings">Settings</a>
               </li>
+              <% } %>
             </ul>
           </div>
         </div>

@@ -1,29 +1,54 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+dotenv.config();
 const userModel = require('../models/User');
 
 const loginPage = async (req, res) => { 
    res.render('admin/login',{layout : false});
    
 }
-const adminlogin = async (req, res) => { }
-const logout = async (req, res) => { }
+const adminlogin = async (req, res) => { 
+    const {username, password} = req.body;
+    try {
+        const user = await userModel.findOne({username});
+        if(!user) return res.status(404).send('User not found');
+        const isMatch = await bcrypt.compare(password, user.password);
+        if(!isMatch) return res.status(400).send('Invalid credentials');
+        const jwtData ={
+            id: user._id, fullname: user.fullname,
+            role: user.role
+        }
+        const token = jwt.sign(jwtData, process.env.JWT_SECRET, {expiresIn: '1h'});
+        res.cookie('token', token, {httpOnly: true, maxAge: 60 * 60 * 1000});
+        res.redirect('/admin/dashboard');
+    } catch (error) {
+        console.log(error);
+        return res.status(400).send('Something went wrong');
+    }
+}
+const logout = async (req, res) => {
+    res.clearCookie('token');
+    res.redirect('/admin/');
+ }
 const dashboard = async (req, res) => { 
-    res.render('admin/dashboard');
+    res.render('admin/dashboard', {role: req.role, fullname: req.fullname});
 }
 const settings = async (req, res) => {
-    res.render('admin/settings');
+    res.render('admin/settings', {role: req.role});
  }
 
 const allUsers = async (req, res) => { 
     const users = await userModel.find();
     
-    res.render('admin/users', { users });
+    res.render('admin/users', { users ,role: req.role});
 }
 const addUserPage = async (req, res) => { 
     res.render('admin/users/create');
 }
 const addUser = async (req, res) => {
   await userModel.create(req.body)
-    res.redirect('/admin/users')
+    res.redirect('/admin/users', {role: req.role})
 
  }
 const updateUserPage = async (req, res) => { 
@@ -31,7 +56,7 @@ const updateUserPage = async (req, res) => {
         const id = req.params.id;
         const user = await userModel.findById(id);
         if(!user) return res.status(404).send('User not found');
-        res.render('admin/users/update', {user});
+        res.render('admin/users/update', {user , role: req.role});
     } catch (error) {
         console.log(error);
         return res.status(400).send('Something went wrong');
@@ -50,7 +75,7 @@ const updateUser = async (req, res) => {
         }
         user.role = role || user.role;
         await user.save();
-        res.redirect('/admin/users');
+        res.redirect('/admin/users', {role: req.role});
     } catch (error) {
         console.log(error);
         return res.status(400).send('Something went wrong');

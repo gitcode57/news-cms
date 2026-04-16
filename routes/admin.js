@@ -2,45 +2,48 @@ const express = require('express');
 const router = express.Router();
 
 
+
 const articleController = require('../controllers/articleController');
 const categoryController = require('../controllers/categoryController');
-const userController = require('../controllers/userController');
+const userController = require('../controllers/usercontroller');
 const commentController = require('../controllers/commentController');
+const isLoggedIn = require('../middleware/isLoggedin');
+const isAdmin = require('../middleware/isAdmin');
 
 // login routes
 router.get('/',userController.loginPage);
 router.post('/index',userController.adminlogin);
 router.get('/logout',userController.logout);
-router.get('/dashboard',userController.dashboard);
-router.get('/settings',userController.settings);
+router.get('/dashboard',isLoggedIn,userController.dashboard);
+router.get('/settings',isLoggedIn,isAdmin,userController.settings);
 
 // user crud routes
 
-router.get('/users',userController.allUsers);
-router.get('/add-user',userController.addUserPage);
-router.post('/add-user',userController.addUser);
-router.get('/update-user/:id',userController.updateUserPage);
-router.post('/update-user/:id',userController.updateUser);
-router.delete('/delete-user/:id',userController.deleteUser);
+router.get('/users',isLoggedIn,isAdmin,userController.allUsers);
+router.get('/add-user',isLoggedIn,isAdmin,userController.addUserPage);
+router.post('/add-user',isLoggedIn,isAdmin,userController.addUser);
+router.get('/update-user/:id',isLoggedIn,isAdmin,userController.updateUserPage);
+router.post('/update-user/:id',isLoggedIn,isAdmin,userController.updateUser);
+router.delete('/delete-user/:id',isLoggedIn,isAdmin,userController.deleteUser);
 
 // category crud routes
-router.get('/category',categoryController.allCategory);
-router.get('/add-category',categoryController.addCategoryPage);
-router.post('/add-category',categoryController.addCategory);
-router.get('/update-category/:id',categoryController.updateCategoryPage);
-router.post('/update-category/:id',categoryController.updateCategory);
-router.get('/delete-category/:id',categoryController.deleteCategory);
+router.get('/category',isLoggedIn,isAdmin,categoryController.allCategory);
+router.get('/add-category',isLoggedIn,isAdmin,categoryController.addCategoryPage);
+router.post('/add-category',isLoggedIn,isAdmin,categoryController.addCategory);
+router.get('/update-category/:id',isLoggedIn,isAdmin,categoryController.updateCategoryPage);
+router.post('/update-category/:id',isLoggedIn,isAdmin,categoryController.updateCategory);
+router.get('/delete-category/:id',isLoggedIn,isAdmin,categoryController.deleteCategory);
 
 // Article crud routes
-router.get('/articles',articleController.allArticles);
-router.get('/add-article',articleController.addArticlePage);
-router.post('/add-article',articleController.addArticle);
-router.get('/update-article/:id',articleController.updateArticlePage);
-router.post('/update-article/:id',articleController.updateArticle);
-router.get('/delete-article/:id',articleController.deleteArticle);
+router.get('/articles',isLoggedIn,articleController.allArticles);
+router.get('/add-article',isLoggedIn,articleController.addArticlePage);
+router.post('/add-article',isLoggedIn,articleController.addArticle);
+router.get('/update-article/:id',isLoggedIn,articleController.updateArticlePage);
+router.post('/update-article/:id',isLoggedIn,articleController.updateArticle);
+router.get('/delete-article/:id',isLoggedIn,articleController.deleteArticle);
 
 // delete comment
-router.get('/comment',commentController.allComments);
+router.get('/comment',isLoggedIn,commentController.allComments);
 
 
 module.exports = router;
