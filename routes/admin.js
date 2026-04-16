@@ -32,7 +32,7 @@ router.get('/add-category',isLoggedIn,isAdmin,categoryController.addCategoryPage
 router.post('/add-category',isLoggedIn,isAdmin,categoryController.addCategory);
 router.get('/update-category/:id',isLoggedIn,isAdmin,categoryController.updateCategoryPage);
 router.post('/update-category/:id',isLoggedIn,isAdmin,categoryController.updateCategory);
-router.get('/delete-category/:id',isLoggedIn,isAdmin,categoryController.deleteCategory);
+router.delete('/delete-category/:id',isLoggedIn,isAdmin,categoryController.deleteCategory);
 
 // Article crud routes
 router.get('/articles',isLoggedIn,articleController.allArticles);

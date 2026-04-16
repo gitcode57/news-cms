@@ -44,11 +44,11 @@ const allUsers = async (req, res) => {
     res.render('admin/users', { users ,role: req.role});
 }
 const addUserPage = async (req, res) => { 
-    res.render('admin/users/create');
+    res.render('admin/users/create', {role: req.role});
 }
 const addUser = async (req, res) => {
   await userModel.create(req.body)
-    res.redirect('/admin/users', {role: req.role})
+    res.redirect('/admin/users');
 
  }
 const updateUserPage = async (req, res) => { 
@@ -75,7 +75,7 @@ const updateUser = async (req, res) => {
         }
         user.role = role || user.role;
         await user.save();
-        res.redirect('/admin/users', {role: req.role});
+        res.redirect('/admin/users');
     } catch (error) {
         console.log(error);
         return res.status(400).send('Something went wrong');
