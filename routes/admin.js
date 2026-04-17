@@ -9,6 +9,7 @@ const userController = require('../controllers/usercontroller');
 const commentController = require('../controllers/commentController');
 const isLoggedIn = require('../middleware/isLoggedin');
 const isAdmin = require('../middleware/isAdmin');
+const Upload = require('../middleware/multer');
 
 // login routes
 router.get('/',userController.loginPage);
@@ -37,10 +38,10 @@ router.delete('/delete-category/:id',isLoggedIn,isAdmin,categoryController.delet
 // Article crud routes
 router.get('/articles',isLoggedIn,articleController.allArticles);
 router.get('/add-article',isLoggedIn,articleController.addArticlePage);
-router.post('/add-article',isLoggedIn,articleController.addArticle);
+router.post('/add-article',isLoggedIn,Upload.single('image'),articleController.addArticle);
 router.get('/update-article/:id',isLoggedIn,articleController.updateArticlePage);
-router.post('/update-article/:id',isLoggedIn,articleController.updateArticle);
-router.get('/delete-article/:id',isLoggedIn,articleController.deleteArticle);
+router.post('/update-article/:id',isLoggedIn,Upload.single('image'),articleController.updateArticle);
+router.delete('/delete-article/:id',isLoggedIn,articleController.deleteArticle);
 
 // delete comment
 router.get('/comment',isLoggedIn,commentController.allComments);
