@@ -1,6 +1,8 @@
 const categoryModel = require('../models/Category');
 const newsModel = require('../models/News');
 const userModel = require('../models/User');
+const fs = require('fs');
+const Path = require('path');
 
 const allArticles = async(req,res) => {
 let articles;
@@ -76,6 +78,8 @@ const updateArticle = async(req,res) => {
         article.content = content;
         article.category = category;
         if(req.file){
+            const imagepath = Path.join(__dirname,'../public/uploads',article.image);
+            fs.unlinkSync(imagepath);
             article.image = req.file.filename;
         }
         await article.save();
@@ -98,7 +102,10 @@ const deleteArticle = async(req,res) => {
             return res.status(403).send('Unauthorized');
         }
     }
+    const imagepath = Path.join(__dirname,'../public/uploads',article.image);
+            fs.unlinkSync(imagepath);
         await article.deleteOne();
+        
        res.json({success:true})
     } catch (error) {
         console.log(error);

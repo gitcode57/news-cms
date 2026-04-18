@@ -3,6 +3,9 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 dotenv.config();
 const userModel = require('../models/User');
+const categoryModel = require('../models/Category');
+const newsModel = require('../models/News');
+const settingModel = require('../models/settings');
 
 const loginPage = async (req, res) => { 
    res.render('admin/login',{layout : false});
@@ -32,12 +35,50 @@ const logout = async (req, res) => {
     res.redirect('/admin/');
  }
 const dashboard = async (req, res) => { 
-    res.render('admin/dashboard', {role: req.role, fullname: req.fullname});
+    try{
+        const usercount = await userModel.countDocuments();
+        const categorycount = await categoryModel.countDocuments();
+        if(req.role === 'admin'){
+            var articlecount = await newsModel.countDocuments();
+        }else{
+            var articlecount = await newsModel.countDocuments({author:req.id});
+        }
+        res.render('admin/dashboard', {role: req.role, fullname: req.fullname, usercount, categorycount, articlecount});
+
+    }catch(error){
+        console.log(error);
+        return res.status(400).send('Something went wrong');
+    }
+
 }
 const settings = async (req, res) => {
-    res.render('admin/settings', {role: req.role});
+
+    try {
+        const setting = await settingModel.findOne();
+        res.render('admin/settings', {role: req.role , setting});
+    } catch (error) {
+        console.log(error);
+        return res.status(400).send('Something went wrong');
+    }
+     
+ }
+ const saveSettings = async (req, res) => {
+    try{
+        const {website_title,  website_footer} = req.body;
+        const data = {
+            website_title,
+            website_logo: req.file ? req.file.filename : null,
+            website_footer
+        }
+        const setting = await settingModel.findOneAndUpdate({}, data, {new: true , upsert: true });
+        res.redirect('/admin/settings');
+
+    }catch(error){
+        console.log(error);
+        return res.status(400).send('Something went wrong');
  }
 
+ }
 const allUsers = async (req, res) => { 
     const users = await userModel.find();
     
@@ -105,7 +146,8 @@ module.exports = {
     updateUser,
     deleteUser,
     dashboard,
-    settings
+    settings,
+    saveSettings
 }
 
 
