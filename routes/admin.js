@@ -10,10 +10,11 @@ const commentController = require('../controllers/commentController');
 const isLoggedIn = require('../middleware/isLoggedin');
 const isAdmin = require('../middleware/isAdmin');
 const Upload = require('../middleware/multer');
+const isValid = require('../middleware/validation');
 
 // login routes
 router.get('/',userController.loginPage);
-router.post('/index',userController.adminlogin);
+router.post('/index',isValid.loginValidation ,userController.adminlogin);
 router.get('/logout',userController.logout);
 router.get('/dashboard',isLoggedIn,userController.dashboard);
 router.get('/settings',isLoggedIn,isAdmin,userController.settings);
@@ -45,6 +46,39 @@ router.delete('/delete-article/:id',isLoggedIn,articleController.deleteArticle);
 
 // delete comment
 router.get('/comment',isLoggedIn,commentController.allComments);
+
+router.use(isLoggedIn, ( req, res, next) => {
+        res.status(404).render('admin/404',{
+            role: req.role,
+            message: 'Page Not Found'
+        });
+
+    }); 
+
+    router.use( (err, req, res, next) => {
+        console.error(err.stack);
+        const status = err.status || 500;
+        let view;
+        switch (status) {
+            case 401:
+                view = 'admin/401';
+                break;
+            case 404:
+                view = 'admin/404';
+                break;
+            case 500: 
+                 view = 'admin/500'
+            default:
+                view = 'admin/500';
+                
+        }
+
+        res.status(status).render(view,{
+            message: err.message || 'Internal server error',
+              role: req.role,
+        });
+
+    }); 
 
 
 module.exports = router;

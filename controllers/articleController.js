@@ -3,8 +3,9 @@ const newsModel = require('../models/News');
 const userModel = require('../models/User');
 const fs = require('fs');
 const Path = require('path');
+const createError = require('../utils/error-message');
 
-const allArticles = async(req,res) => {
+const allArticles = async(req,res,next) => {
 let articles;
     try {
         if(req.role === 'admin'){
@@ -14,16 +15,14 @@ let articles;
         }
         res.render('admin/articles', {role: req.role, articles});   
     } catch (error) {
-        console.log(error);
-        res.status(500).send('Error Occurred');
+      next(error);
     }  
  }
-/*******  9739ba24-7926-4db2-b3f9-c50ce7df75c2  *******/    
 const addArticlePage = async(req,res) => { 
     const categories = await categoryModel.find();
     res.render('admin/articles/create', {role: req.role, categories}); 
 }
-const addArticle = async(req,res) => {
+const addArticle = async(req,res,next) => {
     try {
         const {title, content, category} = req.body;
         const article = new newsModel({
@@ -36,41 +35,39 @@ const addArticle = async(req,res) => {
         await article.save();
         res.redirect('/admin/articles');
     } catch (error) {
-        console.log(error);
-        res.status(500).send('Error Occured');
+        next(error);
     }
  }
-const updateArticlePage = async(req,res) => {
+const updateArticlePage = async(req,res,next) => {
     const id = req.params.id;
     try{
         const article = await newsModel.findById(id).populate('category','name').populate('author','fullname');
     if(!article){
-        return res.status(404).send('Article Not Found');
+        return next(createError('Article Not Found', 404));
     }
     if(req.role == 'author'){
         if(article.author._id != req.id){
-            return res.status(403).send('Unauthorized');
+            return next(createError('Unauthorized', 401));
         }
     }
     const categories = await categoryModel.find();
     res.render('admin/articles/update', {role: req.role, article, categories});
     }catch(error){
-        console.log(error);
-        res.status(500).send('Error Occured');
+       next(error);
     }
     
 }
-const updateArticle = async(req,res) => { 
+const updateArticle = async(req,res,next) => { 
     const id = req.params.id;
     try {
         const {title, content, category} = req.body;
         const article = await newsModel.findById(id);
         if(!article){
-            return res.status(404).send('Article Not Found');
+            return next(createError('Article Not Found', 404));
         }
        if(req.role == 'author'){
            if(article.author._id != req.id){
-            return res.status(403).send('Unauthorized');
+            return next(createError('Unauthorized', 401));
          }
         }
 
@@ -85,21 +82,20 @@ const updateArticle = async(req,res) => {
         await article.save();
         res.redirect('/admin/articles');
     } catch (error) {
-        console.log(error);
-        res.status(500).send('Error Occured');
+   next(error);
     }
 
 }
-const deleteArticle = async(req,res) => { 
+const deleteArticle = async(req,res,next) => { 
     const id = req.params.id;
     try {
         const article = await newsModel.findById(id);
         if(!article){
-            return res.status(404).send('Article Not Found');
+            return next(createError('Article Not Found', 404));
         }
         if(req.role == 'author'){
         if(article.author._id != req.id){
-            return res.status(403).send('Unauthorized');
+            return next(createError('Unauthorized', 401));
         }
     }
     const imagepath = Path.join(__dirname,'../public/uploads',article.image);
@@ -108,8 +104,7 @@ const deleteArticle = async(req,res) => {
         
        res.json({success:true})
     } catch (error) {
-        console.log(error);
-        res.status(500).send('Error Occured');
+       next(error);
     }
 }
 
