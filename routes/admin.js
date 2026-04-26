@@ -22,26 +22,26 @@ router.post('/save-settings',isLoggedIn,isAdmin,Upload.single('website_logo'),us
 // user crud routes
 
 router.get('/users',isLoggedIn,isAdmin,userController.allUsers);
-router.get('/add-user',isLoggedIn,isAdmin,userController.addUserPage);
-router.post('/add-user',isLoggedIn,isAdmin,userController.addUser);
+router.get('/add-user',isLoggedIn,isAdmin, userController.addUserPage);
+router.post('/add-user',isLoggedIn,isAdmin,isValid.UserValidation,userController.addUser);
 router.get('/update-user/:id',isLoggedIn,isAdmin,userController.updateUserPage);
-router.post('/update-user/:id',isLoggedIn,isAdmin,userController.updateUser);
+router.post('/update-user/:id',isLoggedIn,isAdmin,isValid.UserUpdateValidation,userController.updateUser);
 router.delete('/delete-user/:id',isLoggedIn,isAdmin,userController.deleteUser);
 
 // category crud routes
 router.get('/category',isLoggedIn,isAdmin,categoryController.allCategory);
 router.get('/add-category',isLoggedIn,isAdmin,categoryController.addCategoryPage);
-router.post('/add-category',isLoggedIn,isAdmin,categoryController.addCategory);
+router.post('/add-category',isLoggedIn,isAdmin,isValid.CategoryValidation,categoryController.addCategory);
 router.get('/update-category/:id',isLoggedIn,isAdmin,categoryController.updateCategoryPage);
-router.post('/update-category/:id',isLoggedIn,isAdmin,categoryController.updateCategory);
+router.post('/update-category/:id',isLoggedIn,isAdmin,isValid.CategoryValidation,categoryController.updateCategory);
 router.delete('/delete-category/:id',isLoggedIn,isAdmin,categoryController.deleteCategory);
 
 // Article crud routes
 router.get('/articles',isLoggedIn,articleController.allArticles);
 router.get('/add-article',isLoggedIn,articleController.addArticlePage);
-router.post('/add-article',isLoggedIn,Upload.single('image'),articleController.addArticle);
+router.post('/add-article',isLoggedIn,Upload.single('image'),isValid.ArticleValidation,articleController.addArticle);
 router.get('/update-article/:id',isLoggedIn,articleController.updateArticlePage);
-router.post('/update-article/:id',isLoggedIn,Upload.single('image'),articleController.updateArticle);
+router.post('/update-article/:id',isLoggedIn,Upload.single('image'),isValid.ArticleValidation,articleController.updateArticle);
 router.delete('/delete-article/:id',isLoggedIn,articleController.deleteArticle);
 
 // delete comment
